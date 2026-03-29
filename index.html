@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EmpTracker Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1117;
+  --bg2:#161A24;
+  --bg3:#1E2333;
+  --bg4:#252B3B;
+  --border:#2A3045;
+  --border2:#323B52;
+  --text:#E8EBF2;
+  --text2:#8B96B0;
+  --text3:#5A6480;
+  --accent:#4F8EF7;
+  --accent2:#6366F1;
+  --green:#10B981;
+  --red:#EF4444;
+  --amber:#F59E0B;
+  --purple:#8B5CF6;
+  --pink:#EC4899;
+  --cyan:#06B6D4;
+  --radius:10px;
+  --radius-sm:6px;
+  --radius-lg:14px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── APP SHELL ── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:210px;min-width:210px;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.logo{
+  padding:20px 18px 16px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(79,142,247,.15),rgba(99,102,241,.08));
+}
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;margin-bottom:10px;
+  box-shadow:0 4px 12px rgba(79,142,247,.35);
+}
+.logo-title{font-size:15px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.ns{
+  font-size:10px;font-weight:600;color:var(--text3);
+  padding:16px 18px 6px;
+  text-transform:uppercase;letter-spacing:.8px;
+}
+.ni{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 18px;cursor:pointer;
+  font-size:12.5px;font-weight:500;color:var(--text2);
+  border-left:2px solid transparent;
+  transition:all .15s;
+}
+.ni:hover{background:rgba(79,142,247,.07);color:var(--text)}
+.ni.active{
+  background:rgba(79,142,247,.12);
+  color:var(--accent);
+  border-left-color:var(--accent);
+}
+.ni-icon{font-size:14px;opacity:.8}
+.sf{
+  margin-top:auto;
+  padding:14px 18px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:10px;
+}
+.sync-status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3)}
+.dot{width:7px;height:7px;border-radius:50%;background:#555}
+.dot.green{background:var(--green);box-shadow:0 0 6px rgba(16,185,129,.5)}
+.dot.red{background:var(--red)}
+.dot.yellow{background:var(--amber)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+.page{display:none;padding:24px;flex-direction:column;gap:18px;animation:fadeIn .2s}
+.page.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.4px;color:var(--text)}
+.page-sub{font-size:12px;color:var(--text3);margin-top:3px}
+
+/* ── METRIC CARDS ── */
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.metric{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  position:relative;overflow:hidden;
+  transition:transform .15s;
+}
+.metric:hover{transform:translateY(-1px)}
+.metric::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--m-color,var(--accent));
+}
+.ml{font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.mv{font-size:22px;font-weight:700;color:var(--m-color,var(--accent));letter-spacing:-.5px}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.ph{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg3);
+  flex-wrap:wrap;gap:10px;
+}
+.pt{font-size:13px;font-weight:600;color:var(--text)}
+.ph-count{
+  font-size:11px;color:var(--text3);
+  background:var(--bg4);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:2px 9px;
+}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  display:flex;gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+  flex-wrap:wrap;
+  align-items:center;
+}
+.toolbar input,.toolbar select{width:auto}
+
+/* ── TABLE WRAPPER ── */
+.table-wrap{overflow-x:auto;width:100%}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:600px}
+th{
+  text-align:left;padding:10px 14px;
+  font-size:10.5px;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg3);
+  white-space:nowrap;position:sticky;top:0;z-index:1;
+}
+td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--text2);
+  white-space:nowrap;
+  transition:background .1s;
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(79,142,247,.04);color:var(--text)}
+.empid{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text3)}
+
+/* ── BADGES ── */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 9px;
+  border-radius:20px;
+  font-size:11px;font-weight:600;
+  letter-spacing:.2px;
+}
+.bp,.bactive{background:rgba(16,185,129,.15);color:#34D399;border:1px solid rgba(16,185,129,.2)}
+.ba,.binactive{background:rgba(239,68,68,.15);color:#F87171;border:1px solid rgba(239,68,68,.2)}
+.bh{background:rgba(245,158,11,.15);color:#FCD34D;border:1px solid rgba(245,158,11,.2)}
+.bot{background:rgba(6,182,212,.15);color:#22D3EE;border:1px solid rgba(6,182,212,.2)}
+.bpay{background:rgba(139,92,246,.15);color:#A78BFA;border:1px solid rgba(139,92,246,.2)}
+.badge-blue{background:rgba(79,142,247,.15);color:#93C5FD;border:1px solid rgba(79,142,247,.2)}
+
+/* ── FORMS ── */
+input,select,textarea{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:8px 11px;
+  font-size:12.5px;
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  width:100%;
+  transition:border-color .15s,box-shadow .15s;
+}
+input::placeholder{color:var(--text3)}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(79,142,247,.15);
+}
+select option{background:var(--bg3);color:var(--text)}
+
+/* ── BUTTONS ── */
+button{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;
+  border-radius:var(--radius-sm);
+  font-size:12.5px;font-weight:600;
+  font-family:'DM Sans',sans-serif;
+  cursor:pointer;
+  border:1px solid var(--border2);
+  background:var(--bg4);
+  color:var(--text2);
+  transition:all .15s;
+  white-space:nowrap;
+}
+button:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+.btn-p{
+  background:linear-gradient(135deg,var(--accent),#3B7DE8);
+  color:#fff;border-color:transparent;
+  box-shadow:0 2px 10px rgba(79,142,247,.3);
+}
+.btn-p:hover{background:linear-gradient(135deg,#6BA4F9,var(--accent));box-shadow:0 4px 14px rgba(79,142,247,.4)}
+.btn-purple{
+  background:linear-gradient(135deg,var(--purple),#6D28D9);
+  color:#fff;border-color:transparent;
+  box-shadow:0 2px 10px rgba(139,92,246,.3);
+}
+.btn-purple:hover{background:linear-gradient(135deg,#A78BFA,var(--purple));box-shadow:0 4px 14px rgba(139,92,246,.4)}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+.btn-danger{
+  background:rgba(239,68,68,.12);
+  color:#F87171;
+  border-color:rgba(239,68,68,.2);
+}
+.btn-danger:hover{background:rgba(239,68,68,.22);color:#FCA5A5}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text3)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+
+/* ── INFO BANNERS ── */
+.info-banner{background:rgba(79,142,247,.1);color:#93C5FD;border:1px solid rgba(79,142,247,.2);border-radius:var(--radius-sm);padding:10px 13px;font-size:12px}
+.warn-banner{background:rgba(245,158,11,.1);color:#FCD34D;border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:10px 13px;font-size:12px}
+.success-banner{background:rgba(16,185,129,.1);color:#34D399;border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm);padding:10px 13px;font-size:12px}
+
+/* ── OVERLAYS & MODALS ── */
+.overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(4px);
+  z-index:1000;
+  align-items:flex-start;justify-content:center;
+  padding:32px 16px;
+  overflow-y:auto;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--bg2) !important;
+  border:1px solid var(--border2);
+  border-radius:var(--radius-lg);
+  padding:24px;
+  width:520px;
+  max-width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.03);
+  position:relative;
+  animation:modalIn .2s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(-10px)}to{opacity:1;transform:none}}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:18px;color:var(--text);letter-spacing:-.3px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-header h3{margin-bottom:0}
+.modal-close{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--bg4);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;color:var(--text2);
+  padding:0;
+}
+.modal-close:hover{background:rgba(239,68,68,.15);color:#F87171}
+
+/* ── FORM GRID ── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg-full{grid-column:1/-1}
+.fl{display:flex;flex-direction:column;gap:5px}
+.fl label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── PROGRESS BAR ── */
+.pbar{height:4px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:4px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .3s}
+
+/* ── PAY HISTORY CARDS ── */
+.pay-hist{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  transition:border-color .15s;
+}
+.pay-hist:hover{border-color:var(--border2)}
+.pay-hist-date{font-size:11px;color:var(--text3)}
+.pay-hist-remark{font-size:12.5px;margin-top:3px;color:var(--text)}
+.pay-hist-amt{font-size:15px;font-weight:700;color:var(--purple);white-space:nowrap;margin-left:12px}
+
+/* ── CODE BLOCKS ── */
+code{font-family:'DM Mono',monospace;font-size:11.5px;background:var(--bg4);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+pre{font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;color:var(--text);background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin:8px 0}
+
+/* ── SETUP STEPS ── */
+.step{display:flex;gap:14px;margin-bottom:16px}
+.step-num{
+  width:26px;height:26px;min-width:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(79,142,247,.3);
+}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.step-desc{font-size:12px;color:var(--text3);line-height:1.6}
+.divider{height:1px;background:var(--border);margin:12px 0}
+
+/* ── VIEW EMP MODAL ── */
+.emp-detail-table td{padding:7px 0;font-size:12px;border:none}
+.emp-detail-table tr:hover td{background:none}
+.emp-detail-table .lbl{color:var(--text3);width:120px;font-weight:500}
+.emp-detail-table .val{color:var(--text);font-weight:500}
+
+/* ── SEARCH BAR ── */
+.search-wrap{position:relative;flex:1;min-width:160px}
+.search-wrap input{padding-left:32px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+
+/* ── DASHBOARD HEADER GRADIENT ── */
+.dash-hero{
+  background:linear-gradient(135deg,rgba(79,142,247,.12),rgba(99,102,241,.06));
+  border:1px solid rgba(79,142,247,.15);
+  border-radius:var(--radius-lg);
+  padding:18px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.dash-hero-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.dash-hero-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.dash-hero-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── ROLE CHIP ── */
+.role-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:600;color:var(--accent);
+  background:rgba(79,142,247,.12);
+  border:1px solid rgba(79,142,247,.2);
+  border-radius:20px;padding:3px 10px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-title">EmpTracker Pro</div>
+    <div class="logo-sub" id="role-display">Admin — All Sites</div>
+  </div>
+
+  <div class="ns">Main</div>
+  <div class="ni active" data-page="dashboard" onclick="nav(this)"><span class="ni-icon">🏠</span>Dashboard</div>
+  <div class="ni" data-page="attendance" onclick="nav(this)"><span class="ni-icon">📋</span>Mark Attendance</div>
+  <div class="ni" data-page="employees" onclick="nav(this)"><span class="ni-icon">👥</span>Employees</div>
+
+  <div class="ns">Finance</div>
+  <div class="ni" data-page="payments" onclick="nav(this)"><span class="ni-icon">💰</span>Payments Ledger</div>
+
+  <div class="ns">Reports</div>
+  <div class="ni" data-page="emp-report" onclick="nav(this)"><span class="ni-icon">📈</span>Employee Report</div>
+  <div class="ni" data-page="site-report" onclick="nav(this)"><span class="ni-icon">🏗️</span>Site Report</div>
+
+  <div class="ns">Setup</div>
+  <div class="ni" data-page="sheets" onclick="nav(this)"><span class="ni-icon">📄</span>Google Sheets</div>
+
+  <div class="sf">
+    <div class="fl">
+      <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Role / View</label>
+      <select id="role-sel" onchange="setRole(this.value)">
+        <option value="admin">Admin (all sites)</option>
+        <option value="SUP-N">Supervisor — Site A North</option>
+        <option value="SUP-S">Supervisor — Site B South</option>
+        <option value="SUP-E">Supervisor — Site C East</option>
+        <option value="SUP-W">Supervisor — Site D West</option>
+        <option value="SUP-C">Supervisor — Site E Central</option>
+      </select>
+    </div>
+    <div class="sync-status">
+      <div class="dot yellow" id="sync-dot"></div>
+      <span id="sync-label">Not connected</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
+<div class="main">
+
+<!-- ──────────── DASHBOARD ──────────── -->
+<div class="page active" id="page-dashboard">
+  <div class="dash-hero">
+    <div>
+      <div class="dash-hero-title">👋 Good day!</div>
+      <div class="dash-hero-sub" id="dash-sub">All sites overview</div>
+    </div>
+    <div class="dash-hero-actions">
+      <input type="date" id="dash-date" style="width:155px" onchange="renderDashboard()">
+      <button class="btn-p btn-sm" onclick="nav(document.querySelector('[data-page=attendance]'))">+ Mark Attendance</button>
+      <button class="btn-purple btn-sm" onclick="openPayModal()">+ Add Payment</button>
+    </div>
+  </div>
+
+  <div class="cards" id="dash-cards"></div>
+
+  <div class="panel">
+    <div class="ph">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="pt">Attendance — Selected Date</span>
+        <span class="ph-count" id="dash-dlabel"></span>
+      </div>
+      <div class="search-wrap" style="max-width:200px">
+        <span class="search-icon">🔍</span>
+        <input id="dash-q" placeholder="Search employee..." oninput="renderDashboard()" style="font-size:12px">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:95px">Emp ID</th>
+          <th style="width:140px">Name</th>
+          <th style="width:150px">Site Worked</th>
+          <th style="width:80px">Status</th>
+          <th style="width:65px">Hours</th>
+          <th style="width:100px">Amount (₹)</th>
+          <th style="width:100px">Payment</th>
+          <th style="width:75px">Action</th>
+        </tr></thead>
+        <tbody id="dash-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── ATTENDANCE ──────────── -->
+<div class="page" id="page-attendance">
+  <div class="topbar">
+    <div>
+      <div class="page-title">📋 Mark Attendance</div>
+      <div class="page-sub">Supervisor selects the actual site worked each day</div>
+    </div>
+    <button class="btn-p btn-sm" onclick="openAttModal()">+ Single Entry</button>
+  </div>
+  <div id="att-banner"></div>
+  <div class="panel">
+    <div class="ph">
+      <span class="pt">Bulk Mark — All Employees</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="date" id="bulk-date" style="width:155px">
+        <button class="btn-p btn-sm" onclick="saveBulk()">💾 Save All</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap" style="max-width:220px">
+        <span class="search-icon">🔍</span>
+        <input id="bulk-q" placeholder="Search employee..." oninput="renderBulk()">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:95px">ID</th>
+          <th style="width:140px">Name</th>
+          <th style="width:170px">Site Worked Today</th>
+          <th style="width:100px">Status</th>
+          <th style="width:95px">Payment</th>
+        </tr></thead>
+        <tbody id="bulk-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── EMPLOYEES ──────────── -->
+<div class="page" id="page-employees">
+  <div class="topbar">
+    <div>
+      <div class="page-title">👥 Employees</div>
+      <div class="page-sub">Master record — each employee has a unique ID card number</div>
+    </div>
+    <button class="btn-p btn-sm" onclick="openEmpModal()">+ Add Employee</button>
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <div class="search-wrap" style="max-width:220px">
+        <span class="search-icon">🔍</span>
+        <input id="emp-q" placeholder="Search name or ID..." oninput="renderEmployees()">
+      </div>
+      <select id="emp-site-f" onchange="renderEmployees()" style="max-width:170px"><option value="">All Sites</option></select>
+      <select id="emp-status-f" onchange="renderEmployees()" style="max-width:130px">
+        <option value="">All Status</option>
+        <option>Active</option>
+        <option>Inactive</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:95px">ID Card</th>
+          <th style="width:150px">Name</th>
+          <th style="width:110px">Designation</th>
+          <th style="width:150px">Home Site</th>
+          <th style="width:120px">Contact</th>
+          <th style="width:75px">Status</th>
+          <th style="width:110px">Actions</th>
+        </tr></thead>
+        <tbody id="emp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── PAYMENTS LEDGER ──────────── -->
+<div class="page" id="page-payments">
+  <div class="topbar">
+    <div>
+      <div class="page-title">💰 Payments Ledger</div>
+      <div class="page-sub">Record any cash or transfer given to an employee — with date and remark</div>
+    </div>
+    <button class="btn-purple" onclick="openPayModal()">+ Add Payment</button>
+  </div>
+  <div class="cards" id="pay-cards" style="grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+  <div class="panel">
+    <div class="ph">
+      <span class="pt">All Payment Records</span>
+      <span class="ph-count" id="pay-count">0 records</span>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap" style="max-width:220px">
+        <span class="search-icon">🔍</span>
+        <input id="pay-q" placeholder="Search employee..." oninput="renderPayments()">
+      </div>
+      <select id="pay-mode-f" onchange="renderPayments()" style="max-width:150px">
+        <option value="">All Modes</option>
+        <option>Cash</option>
+        <option>Bank Transfer</option>
+        <option>UPI</option>
+        <option>Cheque</option>
+      </select>
+      <input type="month" id="pay-month-f" oninput="renderPayments()" style="max-width:150px">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:105px">Date</th>
+          <th style="width:95px">Emp ID</th>
+          <th style="width:150px">Name</th>
+          <th style="width:140px">Site</th>
+          <th style="width:120px">Amount (₹)</th>
+          <th style="width:110px">Mode</th>
+          <th style="width:190px">Remark</th>
+          <th style="width:75px">Action</th>
+        </tr></thead>
+        <tbody id="pay-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── EMPLOYEE REPORT ──────────── -->
+<div class="page" id="page-emp-report">
+  <div class="topbar">
+    <div>
+      <div class="page-title">📈 Employee Report</div>
+      <div class="page-sub">Click any name to see full history — attendance + all payments</div>
+    </div>
+    <input type="month" id="report-month" style="width:160px" onchange="renderEmpReport()">
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <div class="search-wrap" style="max-width:220px">
+        <span class="search-icon">🔍</span>
+        <input id="rep-q" placeholder="Search name or ID..." oninput="renderEmpReport()">
+      </div>
+      <select id="rep-site-f" onchange="renderEmpReport()" style="max-width:170px"><option value="">All Sites</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:95px">ID</th>
+          <th style="width:150px">Name</th>
+          <th style="width:85px">Present</th>
+          <th style="width:75px">Absent</th>
+          <th style="width:75px">Half</th>
+          <th style="width:65px">OT</th>
+          <th style="width:130px">Total Paid (₹)</th>
+          <th style="width:90px">Att %</th>
+        </tr></thead>
+        <tbody id="rep-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── SITE REPORT ──────────── -->
+<div class="page" id="page-site-report">
+  <div class="topbar">
+    <div>
+      <div class="page-title">🏗️ Site Report</div>
+      <div class="page-sub">Grouped by site actually worked — employees can move between sites</div>
+    </div>
+    <input type="month" id="site-month" style="width:160px" onchange="renderSiteReport()">
+  </div>
+  <div class="toolbar" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px">
+    <div class="search-wrap" style="max-width:220px">
+      <span class="search-icon">🔍</span>
+      <input id="site-q" placeholder="Search site..." oninput="renderSiteReport()">
+    </div>
+  </div>
+  <div class="cards" id="site-cards"></div>
+  <div class="panel">
+    <div class="ph"><span class="pt">By Site</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:160px">Site</th>
+          <th style="width:120px">Supervisor</th>
+          <th style="width:90px">Emp-Days</th>
+          <th style="width:80px">Present</th>
+          <th style="width:75px">Absent</th>
+          <th style="width:130px">Total Paid (₹)</th>
+          <th style="width:100px">Att %</th>
+        </tr></thead>
+        <tbody id="site-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── GOOGLE SHEETS SETUP ──────────── -->
+<div class="page" id="page-sheets">
+  <div class="topbar">
+    <div>
+      <div class="page-title">📄 Google Sheets Setup</div>
+      <div class="page-sub">Connect a Google Sheet so data syncs across supervisors and devices</div>
+    </div>
+  </div>
+  <div class="panel" style="padding:20px">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a new Google Sheet</div><div class="step-desc">Open <b>sheets.google.com</b> → Blank spreadsheet. Rename it <i>EmpTracker</i>. Create 3 sheets (tabs): <b>Employees</b>, <b>Attendance</b>, <b>Payments</b>.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Open Apps Script</div><div class="step-desc">In your Google Sheet: <b>Extensions → Apps Script</b>. Delete the default code.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Paste the Apps Script code</div>
+<pre>function doPost(e){
+  var d=JSON.parse(e.postData.contents);
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(d.action==="append"){
+    ss.getSheetByName(d.sheet).appendRow(d.row);
+  }
+  return ContentService.createTextOutput(JSON.stringify({ok:true}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e){
+  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var sh=ss.getSheetByName(e.parameter.sheet||"Employees");
+  var rows=sh.getDataRange().getValues();
+  return ContentService.createTextOutput(JSON.stringify({ok:true,rows:rows}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+    </div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Deploy as Web App</div><div class="step-desc"><b>Deploy → New deployment → Web app</b>. Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b>. Click <b>Deploy</b>. Copy the web app URL.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Web App URL — already connected ✅</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="sheet-url" readonly style="opacity:.7;cursor:default;font-size:11px">
+        <button class="btn-p" onclick="testConnection()">Test</button>
+      </div>
+      <div id="sheet-result" style="margin-top:8px;font-size:12px"></div>
+    </div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Share your Google Sheet with supervisors</div><div class="step-desc">In Google Sheets click <b>Share</b> → paste each supervisor's Gmail → set permission to <b>Viewer</b> or <b>Editor</b>.</div></div></div>
+  </div>
+  <div class="warn-banner"><b>Until connected:</b> All data saves to your browser (localStorage) and persists between sessions on this device.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="exportCSV('Payments')">⬇ Download Payments CSV</button>
+    <button onclick="exportCSV('Attendance')">⬇ Download Attendance CSV</button>
+    <button onclick="exportCSV('Employees')">⬇ Download Employees CSV</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════ MODALS ═══════════════════════════ -->
+
+<!-- ADD EMPLOYEE -->
+<div class="overlay" id="emp-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>👤 Add Employee</h3>
+      <button class="modal-close" onclick="closeOverlay('emp-overlay')">✕</button>
+    </div>
+    <div class="fg">
+      <div class="fl"><label>ID Card Number *</label><input id="e-id" placeholder="EMP1001"></div>
+      <div class="fl"><label>Full Name *</label><input id="e-name" placeholder="Ramesh Kumar"></div>
+      <div class="fl"><label>Father's Name</label><input id="e-father" placeholder="Sri..."></div>
+      <div class="fl"><label>Contact No.</label><input id="e-contact" placeholder="98XXXXXXXX"></div>
+      <div class="fl"><label>Designation</label>
+        <select id="e-desig">
+          <option>Worker</option><option>Helper</option><option>Technician</option>
+          <option>Operator</option><option>Driver</option><option>Supervisor</option>
+        </select>
+      </div>
+      <div class="fl"><label>Home Site</label><select id="e-site"></select></div>
+      <div class="fl"><label>Daily Wage (₹)</label><input id="e-wage" type="number" value="400"></div>
+      <div class="fl"><label>Date of Joining</label><input id="e-doj" type="date"></div>
+      <div class="fl"><label>Aadhar No.</label><input id="e-aadhar" placeholder="XXXX XXXX XXXX"></div>
+      <div class="fl"><label>Bank Account</label><input id="e-bank" placeholder="Account number"></div>
+      <div class="fl"><label>IFSC Code</label><input id="e-ifsc" placeholder="SBIN0001234"></div>
+      <div class="fl"><label>PAN</label><input id="e-pan" placeholder="ABCDE1234F"></div>
+    </div>
+    <div class="mf">
+      <button class="btn-ghost" onclick="closeOverlay('emp-overlay')">Cancel</button>
+      <button class="btn-p" onclick="saveEmployee()">💾 Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDANCE SINGLE -->
+<div class="overlay" id="att-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 Mark Attendance — Single Entry</h3>
+      <button class="modal-close" onclick="closeOverlay('att-overlay')">✕</button>
+    </div>
+    <div class="fg">
+      <div class="fl"><label>Date *</label><input id="a-date" type="date"></div>
+      <div class="fl"><label>Employee *</label><select id="a-emp" onchange="fillAttEmp()"></select></div>
+      <div class="fl"><label>Name</label><input id="a-ename" readonly style="opacity:.6;cursor:default"></div>
+      <div class="fl"><label>Site Worked Today *</label><select id="a-site"></select></div>
+      <div class="fl"><label>Status *</label>
+        <select id="a-status" onchange="calcAmt()">
+          <option value="P">Present</option>
+          <option value="A">Absent</option>
+          <option value="H">Half Day</option>
+          <option value="OT">Overtime</option>
+        </select>
+      </div>
+      <div class="fl"><label>Daily Wage (₹)</label><input id="a-wage" type="number" value="400" oninput="calcAmt()"></div>
+      <div class="fl"><label>Amount (₹) — Auto</label><input id="a-amt" type="number" readonly style="opacity:.6;cursor:default"></div>
+      <div class="fl"><label>Payment Mode</label>
+        <select id="a-pay">
+          <option>Cash</option><option>Bank Transfer</option><option>UPI</option>
+        </select>
+      </div>
+      <div class="fl fg-full"><label>Remarks</label><input id="a-remarks" placeholder="Optional..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn-ghost" onclick="closeOverlay('att-overlay')">Cancel</button>
+      <button class="btn-p" onclick="saveAtt()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PAYMENT -->
+<div class="overlay" id="pay-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>💰 Add Payment Record</h3>
+      <button class="modal-close" onclick="closeOverlay('pay-overlay')">✕</button>
+    </div>
+    <div class="info-banner" style="margin-bottom:14px">
+      📝 Records any amount given — advance, bonus, salary, or any other payment.
+    </div>
+    <div class="fg">
+      <div class="fl"><label>Date *</label><input id="p-date" type="date"></div>
+      <div class="fl"><label>Employee *</label><select id="p-emp" onchange="fillPayEmp()"></select></div>
+      <div class="fl"><label>Employee Name</label><input id="p-ename" readonly style="opacity:.6;cursor:default"></div>
+      <div class="fl"><label>Site</label><input id="p-site" readonly style="opacity:.6;cursor:default"></div>
+      <div class="fl"><label>Amount (₹) *</label><input id="p-amt" type="number" placeholder="e.g. 500"></div>
+      <div class="fl"><label>Payment Mode</label>
+        <select id="p-mode">
+          <option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option>
+        </select>
+      </div>
+      <div class="fl fg-full"><label>Remark *</label><input id="p-remark" placeholder="e.g. Advance for festival, Weekly salary, Bonus..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn-ghost" onclick="closeOverlay('pay-overlay')">Cancel</button>
+      <button class="btn-purple" onclick="savePayment()">💾 Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW EMPLOYEE -->
+<div class="overlay" id="view-overlay">
+  <div class="modal" style="width:580px">
+    <div class="modal-header">
+      <h3 id="view-name">Employee Details</h3>
+      <button class="modal-close" onclick="closeOverlay('view-overlay')">✕</button>
+    </div>
+    <div class="cards" id="view-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px"></div>
+    <div class="divider"></div>
+    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Basic Info</div>
+    <table class="emp-detail-table" style="margin-bottom:14px">
+      <tbody id="view-rows"></tbody>
+    </table>
+    <div class="divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Payment History</div>
+      <div class="search-wrap" style="max-width:180px">
+        <span class="search-icon">🔍</span>
+        <input id="view-pay-q" placeholder="Search payments..." oninput="filterViewPay()" style="font-size:11.5px">
+      </div>
+    </div>
+    <div id="view-payments"></div>
+    <div class="mf">
+      <button class="btn-ghost" onclick="closeOverlay('view-overlay')">Close</button>
+      <button class="btn-purple btn-sm" onclick="quickPay()">+ Add Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SCRIPT ═══════════════════════════ -->
+<script>
+const SITES=["Site-A (North)","Site-B (South)","Site-C (East)","Site-D (West)","Site-E (Central)"];
+const SUP_MAP={"Site-A (North)":"SUP-N","Site-B (South)":"SUP-S","Site-C (East)":"SUP-E","Site-D (West)":"SUP-W","Site-E (Central)":"SUP-C"};
+const SUP_SITE={"SUP-N":"Site-A (North)","SUP-S":"Site-B (South)","SUP-E":"Site-C (East)","SUP-W":"Site-D (West)","SUP-C":"Site-E (Central)"};
+
+const sheetUrl="https://script.google.com/macros/s/AKfycbx-xMgiEdEcowY1eWg6CYafStoS9rRR7dNtMsCS8Z9qph2E67Ttsmm-L1Oc55Gg3XMX/exec";
+let role="admin", employees=[], attendance=[], payments=[], currentViewId="";
+
+/* ── Generate unique ID ── */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ── Load / Persist ── */
+function load(){
+  try{employees=JSON.parse(localStorage.getItem("emp_v4")||"[]");}catch(e){employees=[];}
+  try{attendance=JSON.parse(localStorage.getItem("att_v4")||"[]");}catch(e){attendance=[];}
+  try{payments=JSON.parse(localStorage.getItem("pay_v4")||"[]");}catch(e){payments=[];}
+  // Migrate old data without IDs
+  payments.forEach(p=>{if(!p._id) p._id=uid();});
+  attendance.forEach(a=>{if(!a._id) a._id=uid();});
+  document.getElementById("sheet-url").value=sheetUrl;
+  setSyncStatus("green","Connected");
+  if(!employees.length) seedData();
+}
+function persist(){
+  try{localStorage.setItem("emp_v4",JSON.stringify(employees));}catch(e){}
+  try{localStorage.setItem("att_v4",JSON.stringify(attendance));}catch(e){}
+  try{localStorage.setItem("pay_v4",JSON.stringify(payments));}catch(e){}
+}
+
+
+/* ── Seed data ── */
+function seedData(){
+  const names=["Ramesh Kumar","Suresh Singh","Amit Sharma","Vijay Yadav","Pradeep Gupta","Anil Verma","Rajesh Tiwari","Sanjay Patel","Mohan Lal","Deepak Joshi","Manoj Mishra","Rahul Dubey","Vinod Chauhan","Santosh Rai","Arvind Negi","Dinesh Pandey","Rakesh Bhatt","Naresh Rana","Satish Jain","Harish Garg"];
+  const desigs=["Worker","Helper","Technician","Operator","Driver","Worker","Helper","Technician","Worker","Operator"];
+  for(let i=1;i<=20;i++){
+    const site=SITES[(i-1)%5];
+    employees.push({id:`EMP${1000+i}`,name:names[(i-1)%20],father:"Sri "+names[(i-1)%20].split(" ")[0]+"ji",contact:`9${Math.floor(Math.random()*800000000+100000000)}`,designation:desigs[(i-1)%10],homeSite:site,supervisor:SUP_MAP[site],wage:400,doj:"01/01/2023",aadhar:"",bank:"",ifsc:"",pan:"",status:"Active"});
+  }
+  const sts=["P","P","P","P","A","H","OT"],today=new Date();
+  for(let d=13;d>=0;d--){
+    const dt=new Date(today);dt.setDate(dt.getDate()-d);
+    const ds=dt.toISOString().split("T")[0];
+    employees.forEach(emp=>{
+      if(Math.random()>0.1){
+        const st=sts[Math.floor(Math.random()*sts.length)];
+        const sw=Math.random()>0.3?emp.homeSite:SITES[Math.floor(Math.random()*SITES.length)];
+        const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0;
+        attendance.push({_id:uid(),date:ds,empId:emp.id,empName:emp.name,siteWorked:sw,supervisor:SUP_MAP[sw]||"",status:st,hours:hrs,amount:Math.round(hrs*(emp.wage/8)),payment:"Cash",remarks:""});
+      }
+    });
+  }
+  const remarks=["Weekly advance","Festival bonus","Salary payment","Medical advance","Travel allowance","Overtime bonus","Monthly salary","Partial payment"];
+  const modes=["Cash","Bank Transfer","UPI","Cash"];
+  employees.forEach(emp=>{
+    const numPay=Math.floor(Math.random()*3)+1;
+    for(let p=0;p<numPay;p++){
+      const dt=new Date(today);dt.setDate(dt.getDate()-Math.floor(Math.random()*20));
+      payments.push({_id:uid(),date:dt.toISOString().split("T")[0],empId:emp.id,empName:emp.name,homeSite:emp.homeSite,amount:Math.round((Math.floor(Math.random()*20)+5)*100),mode:modes[Math.floor(Math.random()*modes.length)],remark:remarks[Math.floor(Math.random()*remarks.length)],addedBy:role});
+    }
+  });
+  persist();
+}
+
+/* ── Role / Nav ── */
+function setRole(r){role=r;document.getElementById("role-display").textContent=r==="admin"?"Admin — All Sites":r+" ("+SUP_SITE[r]+")";renderAll();populateSelects();}
+function myZone(){return role==="admin"?null:SUP_SITE[role];}
+
+function nav(el){
+  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("page-"+el.dataset.page).classList.add("active");
+  renderAll();
+}
+
+/* ── Overlays ── */
+function openOverlay(id){document.getElementById(id).classList.add("open");}
+function closeOverlay(id){document.getElementById(id).classList.remove("open");}
+
+/* ── Modal openers ── */
+function openEmpModal(){
+  populateSiteSelect("e-site");
+  ["e-id","e-name","e-father","e-contact","e-aadhar","e-bank","e-ifsc","e-pan"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("e-wage").value=400;
+  openOverlay("emp-overlay");
+}
+function openAttModal(){
+  document.getElementById("a-date").value=todayStr();
+  populateAttEmpSelect("a-emp");populateSiteSelect("a-site");fillAttEmp();calcAmt();
+  openOverlay("att-overlay");
+}
+function openPayModal(){
+  document.getElementById("p-date").value=todayStr();
+  populateAttEmpSelect("p-emp");fillPayEmp();
+  document.getElementById("p-amt").value="";
+  document.getElementById("p-remark").value="";
+  openOverlay("pay-overlay");
+}
+function quickPay(){closeOverlay("view-overlay");openPayModal();if(currentViewId){document.getElementById("p-emp").value=currentViewId;fillPayEmp();}}
+
+/* ── Helpers ── */
+function todayStr(){return new Date().toISOString().split("T")[0];}
+function populateSiteSelect(id){document.getElementById(id).innerHTML=SITES.map(s=>`<option>${s}</option>`).join("");}
+function populateAttEmpSelect(selId){
+  const zone=myZone();
+  const list=zone?employees.filter(e=>e.homeSite===zone):employees;
+  document.getElementById(selId).innerHTML=list.map(e=>`<option value="${e.id}">${e.id} — ${e.name}</option>`).join("");
+}
+function fillAttEmp(){const id=document.getElementById("a-emp").value.split(" ")[0];const emp=employees.find(e=>e.id===id);if(emp){document.getElementById("a-ename").value=emp.name;document.getElementById("a-wage").value=emp.wage||400;calcAmt();}}
+function fillPayEmp(){const id=document.getElementById("p-emp").value.split(" ")[0];const emp=employees.find(e=>e.id===id);if(emp){document.getElementById("p-ename").value=emp.name;document.getElementById("p-site").value=emp.homeSite;}}
+function calcAmt(){const st=document.getElementById("a-status").value;const wage=parseFloat(document.getElementById("a-wage").value)||400;const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0;document.getElementById("a-amt").value=Math.round(hrs*(wage/8));}
+
+/* ── Save operations ── */
+function saveEmployee(){
+  const id=document.getElementById("e-id").value.trim();
+  if(!id){alert("ID card number required.");return;}
+  if(employees.find(e=>e.id===id)){alert("ID already exists.");return;}
+  const site=document.getElementById("e-site").value;
+  const emp={id,name:document.getElementById("e-name").value,father:document.getElementById("e-father").value,contact:document.getElementById("e-contact").value,designation:document.getElementById("e-desig").value,homeSite:site,supervisor:SUP_MAP[site],wage:parseFloat(document.getElementById("e-wage").value)||400,doj:document.getElementById("e-doj").value,aadhar:document.getElementById("e-aadhar").value,bank:document.getElementById("e-bank").value,ifsc:document.getElementById("e-ifsc").value,pan:document.getElementById("e-pan").value,status:"Active"};
+  employees.push(emp);persist();closeOverlay("emp-overlay");renderAll();
+  push("Employees",[emp.id,emp.name,emp.father,emp.contact,emp.designation,site,SUP_MAP[site],emp.wage,emp.doj,emp.aadhar,emp.bank,emp.ifsc,emp.pan,"Active"]);
+}
+
+function saveAtt(){
+  const id=document.getElementById("a-emp").value.split(" ")[0];
+  const emp=employees.find(e=>e.id===id);if(!emp) return;
+  const site=document.getElementById("a-site").value;
+  const st=document.getElementById("a-status").value;
+  const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0;
+  const rec={_id:uid(),date:document.getElementById("a-date").value,empId:emp.id,empName:emp.name,siteWorked:site,supervisor:SUP_MAP[site]||"",status:st,hours:hrs,amount:Math.round(hrs*((emp.wage||400)/8)),payment:document.getElementById("a-pay").value,remarks:document.getElementById("a-remarks").value};
+  attendance.push(rec);persist();closeOverlay("att-overlay");renderAll();
+  push("Attendance",[rec.date,rec.empId,rec.empName,rec.siteWorked,rec.supervisor,rec.status,rec.hours,rec.amount,rec.payment,rec.remarks]);
+}
+
+function savePayment(){
+  const id=document.getElementById("p-emp").value.split(" ")[0];
+  const emp=employees.find(e=>e.id===id);if(!emp){alert("Select employee.");return;}
+  const amt=parseFloat(document.getElementById("p-amt").value);
+  if(!amt||amt<=0){alert("Enter a valid amount.");return;}
+  const remark=document.getElementById("p-remark").value.trim();
+  if(!remark){alert("Remark is required.");return;}
+  const rec={_id:uid(),date:document.getElementById("p-date").value,empId:emp.id,empName:emp.name,homeSite:emp.homeSite,amount:amt,mode:document.getElementById("p-mode").value,remark,addedBy:role};
+  payments.push(rec);persist();closeOverlay("pay-overlay");renderAll();
+  push("Payments",[rec.date,rec.empId,rec.empName,rec.homeSite,rec.amount,rec.mode,rec.remark,rec.addedBy]);
+}
+
+function saveBulk(){
+  const date=document.getElementById("bulk-date").value;
+  if(!date){alert("Select date.");return;}
+  let count=0;
+  document.querySelectorAll("#bulk-tbody tr").forEach(row=>{
+    const id=row.dataset.empid;const emp=employees.find(e=>e.id===id);if(!emp) return;
+    const site=row.querySelector(".bs").value;
+    const st=row.querySelector(".bst").value;
+    const wage=emp.wage||400;
+    const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0;
+    const amt=Math.round(hrs*(wage/8));
+    const pay=row.querySelector(".bpm").value;
+    const idx=attendance.findIndex(a=>a.date===date&&a.empId===id);
+    const rec={_id:idx>=0?attendance[idx]._id:uid(),date,empId:id,empName:emp.name,siteWorked:site,supervisor:SUP_MAP[site]||"",status:st,hours:hrs,amount:amt,payment:pay,remarks:""};
+    if(idx>=0) attendance[idx]=rec; else attendance.push(rec);
+    push("Attendance",[date,id,emp.name,site,SUP_MAP[site]||"",st,hrs,amt,pay,""]);
+    count++;
+  });
+  persist();renderAll();
+  const b=document.getElementById("att-banner");
+  b.innerHTML=`<div class="success-banner">✅ Saved ${count} records for ${date}.</div>`;
+  setTimeout(()=>b.innerHTML="",3000);
+}
+
+/* ── DELETE (using _id — safe!) ── */
+function delAtt(id){
+  if(confirm("Delete this attendance record?")){
+    attendance=attendance.filter(a=>a._id!==id);
+    persist();renderAll();
+  }
+}
+function delPay(id,reopenEmpId){
+  if(confirm("Delete this payment record?")){
+    payments=payments.filter(p=>p._id!==id);
+    persist();renderAll();
+    if(reopenEmpId) viewEmp(reopenEmpId);
+  }
+}
+function removeEmp(id){if(confirm("Remove employee "+id+"? This will not delete their records."))employees=employees.filter(e=>e.id!==id),persist(),renderAll();}
+
+/* ── Google Sheets ── */
+function push(sheet,row){
+  if(!sheetUrl) return;
+  fetch(sheetUrl,{method:"POST",body:JSON.stringify({action:"append",sheet,row})}).then(()=>setSyncStatus("green","Synced")).catch(()=>setSyncStatus("red","Sync failed"));
+}
+function setSyncStatus(c,l){document.getElementById("sync-dot").className="dot "+c;document.getElementById("sync-label").textContent=l;}
+function testConnection(){
+  document.getElementById("sheet-result").textContent="Testing...";
+  fetch(sheetUrl+"?sheet=Employees").then(r=>r.json()).then(d=>{
+    if(d.ok){document.getElementById("sheet-result").innerHTML='<span style="color:var(--green)">✅ Connected successfully!</span>';setSyncStatus("green","Connected");}
+    else document.getElementById("sheet-result").innerHTML='<span style="color:var(--red)">Error: '+d.error+'</span>';
+  }).catch(()=>document.getElementById("sheet-result").innerHTML='<span style="color:var(--red)">❌ Could not connect. Check URL and deployment.</span>');
+}
+function exportCSV(type){
+  let csv="",rows=[];
+  if(type==="Payments"){csv="Date,EmpID,EmpName,HomeSite,Amount,Mode,Remark,AddedBy\n";rows=payments.map(p=>[p.date,p.empId,p.empName,p.homeSite,p.amount,p.mode,p.remark,p.addedBy]);}
+  else if(type==="Attendance"){csv="Date,EmpID,EmpName,SiteWorked,Supervisor,Status,Hours,Amount,Payment,Remarks\n";rows=attendance.map(a=>[a.date,a.empId,a.empName,a.siteWorked,a.supervisor,a.status,a.hours,a.amount,a.payment,a.remarks]);}
+  else{csv="ID,Name,Father,Contact,Designation,HomeSite,Supervisor,Wage,DOJ,Aadhar,Bank,IFSC,PAN,Status\n";rows=employees.map(e=>[e.id,e.name,e.father,e.contact,e.designation,e.homeSite,e.supervisor,e.wage,e.doj,e.aadhar,e.bank,e.ifsc,e.pan,e.status]);}
+  rows.forEach(r=>{csv+=r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")+"\n";});
+  const blob=new Blob([csv],{type:"text/csv"});const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=type.toLowerCase()+"_backup.csv";a.click();
+}
+
+/* ── Populate selects ── */
+function populateSelects(){
+  ["emp-site-f","rep-site-f"].forEach(id=>{
+    const el=document.getElementById(id);if(!el) return;
+    const zone=myZone();
+    el.innerHTML='<option value="">All Sites</option>'+SITES.map(s=>`<option>${s}</option>`).join("");
+    if(zone){el.value=zone;el.disabled=true;}else el.disabled=false;
+  });
+}
+
+/* ── RENDER DASHBOARD ── */
+function renderDashboard(){
+  const dateEl=document.getElementById("dash-date");
+  if(!dateEl.value) dateEl.value=todayStr();
+  const d=dateEl.value;
+  document.getElementById("dash-dlabel").textContent=d;
+  const q=(document.getElementById("dash-q").value||"").toLowerCase();
+  const zone=myZone();
+  let dayAtts=attendance.filter(a=>a.date===d&&(zone?a.siteWorked===zone:true));
+  if(q) dayAtts=dayAtts.filter(a=>a.empId.toLowerCase().includes(q)||a.empName.toLowerCase().includes(q));
+  const allEmps=zone?employees.filter(e=>e.homeSite===zone):employees;
+  const totalPaid=payments.filter(p=>zone?p.homeSite===zone:true).reduce((s,p)=>s+p.amount,0);
+  document.getElementById("dash-sub").textContent=zone?zone+" — supervisor view":"All sites";
+  document.getElementById("dash-cards").innerHTML=
+    `<div class="metric" style="--m-color:var(--accent)"><div class="ml">Total Employees</div><div class="mv">${allEmps.length}</div></div>
+     <div class="metric" style="--m-color:var(--green)"><div class="ml">Present Today</div><div class="mv">${dayAtts.filter(a=>a.status==="P"||a.status==="OT").length}</div></div>
+     <div class="metric" style="--m-color:var(--red)"><div class="ml">Absent Today</div><div class="mv">${dayAtts.filter(a=>a.status==="A").length}</div></div>
+     <div class="metric" style="--m-color:var(--purple)"><div class="ml">Total Payments Given</div><div class="mv">₹${totalPaid.toLocaleString("en-IN")}</div></div>`;
+  document.getElementById("dash-tbody").innerHTML=dayAtts.sort((a,b)=>a.empId.localeCompare(b.empId)).map(a=>
+    `<tr>
+      <td class="empid">${a.empId}</td>
+      <td style="color:var(--text);font-weight:500">${a.empName}</td>
+      <td style="color:var(--text2)">${a.siteWorked}</td>
+      <td><span class="badge b${a.status.toLowerCase()}">${a.status}</span></td>
+      <td style="color:var(--text3)">${a.hours}h</td>
+      <td style="color:var(--green);font-weight:600">₹${a.amount.toLocaleString("en-IN")}</td>
+      <td><span class="badge badge-blue">${a.payment}</span></td>
+      <td><button class="btn-sm btn-danger" onclick="delAtt('${a._id}')">🗑 Del</button></td>
+    </tr>`
+  ).join("")||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No attendance records for this date</td></tr>';
+}
+
+/* ── RENDER BULK ── */
+function renderBulk(){
+  const zone=myZone();
+  const q=(document.getElementById("bulk-q").value||"").toLowerCase();
+  let list=zone?employees.filter(e=>e.homeSite===zone):employees;
+  if(q) list=list.filter(e=>e.id.toLowerCase().includes(q)||e.name.toLowerCase().includes(q));
+  const dateEl=document.getElementById("bulk-date");
+  if(!dateEl.value) dateEl.value=todayStr();
+  const d=dateEl.value;
+  const b=document.getElementById("att-banner");
+  if(zone) b.innerHTML=`<div class="info-banner">Supervisor view: showing employees from ${zone}. You can assign any site for today's work.</div>`;
+  else b.innerHTML="";
+  document.getElementById("bulk-tbody").innerHTML=list.map(emp=>{
+    const ex=attendance.find(a=>a.date===d&&a.empId===emp.id);
+    const st=ex?ex.status:"A";const sw=ex?ex.siteWorked:emp.homeSite;const pay=ex?ex.payment:"Cash";
+    const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0; const amt=Math.round(hrs*(emp.wage||400)/8);
+    return `<tr data-empid="${emp.id}">
+      <td class="empid">${emp.id}</td>
+      <td style="color:var(--text);font-weight:500">${emp.name}</td>
+      <td><select class="bs" onchange="updBulk(this)" style="min-width:120px">${SITES.map(s=>`<option${s===sw?" selected":""}>${s}</option>`).join("")}</select></td>
+      <td><select class="bst" onchange="updBulk(this)"><option value="P"${st==="P"?" selected":""}>Present</option><option value="A"${st==="A"?" selected":""}>Absent</option><option value="H"${st==="H"?" selected":""}>Half Day</option><option value="OT"${st==="OT"?" selected":""}>Overtime</option></select></td>
+      <td><select class="bpm"><option${pay==="Cash"?" selected":""}>Cash</option><option${pay==="Bank Transfer"?" selected":""}>Bank Transfer</option><option${pay==="UPI"?" selected":""}>UPI</option></select></td>
+    </tr>`;
+  }).join("");
+}
+function updBulk(el){const row=el.closest("tr");const id=row.dataset.empid;const emp=employees.find(e=>e.id===id);const wage=emp?emp.wage||400:400;const st=row.querySelector(".bst").value;const hrs=st==="P"?8:st==="OT"?10:st==="H"?4:0;row.querySelector(".ba2").textContent="₹"+Math.round(hrs*(wage/8)).toLocaleString("en-IN");}
+
+/* ── RENDER EMPLOYEES ── */
+function renderEmployees(){
+  const zone=myZone();
+  const q=(document.getElementById("emp-q").value||"").toLowerCase();
+  const sf=document.getElementById("emp-site-f").value;
+  const stf=document.getElementById("emp-status-f").value;
+  const list=employees.filter(e=>{
+    if(zone&&e.homeSite!==zone) return false;
+    if(sf&&e.homeSite!==sf) return false;
+    if(stf&&e.status!==stf) return false;
+    if(q&&!e.id.toLowerCase().includes(q)&&!e.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("emp-tbody").innerHTML=list.map(e=>
+    `<tr>
+      <td class="empid" style="cursor:pointer;color:var(--accent)" onclick="viewEmp('${e.id}')">${e.id}</td>
+      <td style="color:var(--text);font-weight:500">${e.name}</td>
+      <td style="color:var(--text2)">${e.designation}</td>
+      <td style="color:var(--text2)">${e.homeSite}</td>
+      <td style="color:var(--text3)">${e.contact}</td>
+      <td><span class="badge b${e.status.toLowerCase()}">${e.status}</span></td>
+      <td style="display:flex;gap:5px">
+        <button class="btn-sm btn-ghost" onclick="viewEmp('${e.id}')">👁 View</button>
+        <button class="btn-sm btn-danger" onclick="removeEmp('${e.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join("")||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No employees found</td></tr>';
+}
+
+/* ── RENDER PAYMENTS ── */
+function renderPayments(){
+  const zone=myZone();
+  const q=(document.getElementById("pay-q").value||"").toLowerCase();
+  const mf=document.getElementById("pay-mode-f").value;
+  const month=document.getElementById("pay-month-f").value;
+  const list=payments.filter(p=>{
+    if(zone&&p.homeSite!==zone) return false;
+    if(mf&&p.mode!==mf) return false;
+    if(month&&!p.date.startsWith(month)) return false;
+    if(q&&!p.empId.toLowerCase().includes(q)&&!p.empName.toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+  const totalFiltered=list.reduce((s,p)=>s+p.amount,0);
+  const totalAll=payments.filter(p=>zone?p.homeSite===zone:true).reduce((s,p)=>s+p.amount,0);
+  document.getElementById("pay-count").textContent=list.length+" records";
+  document.getElementById("pay-cards").innerHTML=
+    `<div class="metric" style="--m-color:var(--purple)"><div class="ml">Total Payments (All Time)</div><div class="mv">₹${totalAll.toLocaleString("en-IN")}</div></div>
+     <div class="metric" style="--m-color:var(--accent)"><div class="ml">Payments Shown</div><div class="mv">${list.length}</div></div>
+     <div class="metric" style="--m-color:var(--amber)"><div class="ml">Amount Shown</div><div class="mv">₹${totalFiltered.toLocaleString("en-IN")}</div></div>`;
+  document.getElementById("pay-tbody").innerHTML=list.map(p=>
+    `<tr>
+      <td style="color:var(--text3)">${p.date}</td>
+      <td class="empid" style="cursor:pointer;color:var(--accent)" onclick="viewEmp('${p.empId}')">${p.empId}</td>
+      <td style="color:var(--text);font-weight:500">${p.empName}</td>
+      <td style="color:var(--text2)">${p.homeSite}</td>
+      <td style="color:var(--purple);font-weight:700">₹${p.amount.toLocaleString("en-IN")}</td>
+      <td><span class="badge bpay">${p.mode}</span></td>
+      <td style="color:var(--text3);max-width:180px;overflow:hidden;text-overflow:ellipsis">${p.remark}</td>
+      <td><button class="btn-sm btn-danger" onclick="delPay('${p._id}')">🗑 Del</button></td>
+    </tr>`
+  ).join("")||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No payment records found</td></tr>';
+}
+
+/* ── VIEW EMPLOYEE ── */
+let _viewPayList=[];
+function viewEmp(id){
+  currentViewId=id;
+  const emp=employees.find(e=>e.id===id);if(!emp) return;
+  const recs=attendance.filter(a=>a.empId===id);
+  const pays=payments.filter(p=>p.empId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  _viewPayList=pays;
+  const P=recs.filter(r=>r.status==="P").length,A=recs.filter(r=>r.status==="A").length,H=recs.filter(r=>r.status==="H").length,OT=recs.filter(r=>r.status==="OT").length;
+  const totalPaid=pays.reduce((s,p)=>s+p.amount,0);
+  document.getElementById("view-name").textContent=emp.name+" ("+emp.id+")";
+  document.getElementById("view-stats").innerHTML=
+    `<div class="metric" style="--m-color:var(--green)"><div class="ml">Present</div><div class="mv">${P}</div></div>
+     <div class="metric" style="--m-color:var(--red)"><div class="ml">Absent</div><div class="mv">${A}</div></div>
+     <div class="metric" style="--m-color:var(--amber)"><div class="ml">Half Day</div><div class="mv">${H}</div></div>
+     <div class="metric" style="--m-color:var(--purple)"><div class="ml">Total Paid</div><div class="mv">₹${totalPaid.toLocaleString("en-IN")}</div></div>`;
+  document.getElementById("view-rows").innerHTML=[
+    ["Home Site",emp.homeSite],["Designation",emp.designation],["Contact",emp.contact],
+    ["Daily Wage","₹"+(emp.wage||400)],["Date of Joining",emp.doj],
+    ["Bank",emp.bank||"—"],["IFSC",emp.ifsc||"—"],["Aadhar",emp.aadhar||"—"],["Status",emp.status]
+  ].map(([k,v])=>`<tr><td class="lbl">${k}</td><td class="val">${v}</td></tr>`).join("");
+  document.getElementById("view-pay-q").value="";
+  renderViewPay(pays,id);
+  openOverlay("view-overlay");
+}
+function renderViewPay(pays,id){
+  document.getElementById("view-payments").innerHTML=pays.length?pays.map(p=>
+    `<div class="pay-hist">
+      <div class="pay-hist-left">
+        <div class="pay-hist-date">${p.date} &nbsp;·&nbsp; <span class="badge bpay" style="font-size:10px;padding:1px 6px">${p.mode}</span></div>
+        <div class="pay-hist-remark">${p.remark}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="pay-hist-amt">₹${p.amount.toLocaleString("en-IN")}</div>
+        <button class="btn-sm btn-danger" onclick="delPay('${p._id}','${id||currentViewId}')">🗑</button>
+      </div>
+    </div>`
+  ).join(""):`<div style="color:var(--text3);font-size:12px;padding:12px 0">No payments recorded yet.</div>`;
+}
+function filterViewPay(){
+  const q=(document.getElementById("view-pay-q").value||"").toLowerCase();
+  const filtered=q?_viewPayList.filter(p=>p.remark.toLowerCase().includes(q)||p.mode.toLowerCase().includes(q)||p.date.includes(q)):_viewPayList;
+  renderViewPay(filtered,currentViewId);
+}
+
+/* ── EMPLOYEE REPORT ── */
+function renderEmpReport(){
+  const zone=myZone();const m=document.getElementById("report-month").value;
+  const q=(document.getElementById("rep-q").value||"").toLowerCase();
+  const sf=document.getElementById("rep-site-f").value;
+  const list=employees.filter(e=>{
+    if(zone&&e.homeSite!==zone) return false;
+    if(sf&&e.homeSite!==sf) return false;
+    if(q&&!e.id.toLowerCase().includes(q)&&!e.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("rep-tbody").innerHTML=list.map(e=>{
+    const recs=attendance.filter(a=>a.empId===e.id&&(!m||a.date.startsWith(m)));
+    const pays=payments.filter(p=>p.empId===e.id&&(!m||p.date.startsWith(m)));
+    const P=recs.filter(r=>r.status==="P").length,A=recs.filter(r=>r.status==="A").length,H=recs.filter(r=>r.status==="H").length,OT=recs.filter(r=>r.status==="OT").length;
+    const totalPaid=pays.reduce((s,p)=>s+p.amount,0);
+    const totalDays=P+A+H+OT;const pct=totalDays>0?Math.round((P+OT+H*.5)/totalDays*100):0;
+    return `<tr>
+      <td class="empid" style="cursor:pointer;color:var(--accent)" onclick="viewEmp('${e.id}')">${e.id}</td>
+      <td style="color:var(--text);font-weight:500;cursor:pointer" onclick="viewEmp('${e.id}')">${e.name}</td>
+      <td style="color:var(--green);font-weight:600">${P}</td>
+      <td style="color:var(--red)">${A}</td>
+      <td style="color:var(--amber)">${H}</td>
+      <td style="color:var(--cyan)">${OT}</td>
+      <td style="color:var(--purple);font-weight:700">₹${totalPaid.toLocaleString("en-IN")} <span style="font-size:10px;color:var(--text3)">(${pays.length})</span></td>
+      <td>${pct}%<div class="pbar"><div class="pfill" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  }).join("")||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No data</td></tr>';
+}
+
+/* ── SITE REPORT ── */
+function renderSiteReport(){
+  const zone=myZone();const m=document.getElementById("site-month").value;
+  const q=(document.getElementById("site-q").value||"").toLowerCase();
+  let siteList=zone?[zone]:SITES;
+  if(q) siteList=siteList.filter(s=>s.toLowerCase().includes(q));
+  let cards="",rows="",grand=0;
+  siteList.forEach(s=>{
+    const atts=attendance.filter(a=>a.siteWorked===s&&(!m||a.date.startsWith(m)));
+    const pays=payments.filter(p=>p.homeSite===s&&(!m||p.date.startsWith(m)));
+    const P=atts.filter(a=>a.status==="P"||a.status==="OT").length,A=atts.filter(a=>a.status==="A").length;
+    const totalPaid=pays.reduce((s,p)=>s+p.amount,0);grand+=totalPaid;
+    const empDays=atts.length;const pct=empDays>0?Math.round(P/empDays*100):0;
+    cards+=`<div class="metric" style="--m-color:var(--accent)"><div class="ml">${s}</div><div class="mv">${empDays} days</div><div style="font-size:12px;color:var(--purple);font-weight:600;margin-top:4px">₹${totalPaid.toLocaleString("en-IN")} paid</div></div>`;
+    rows+=`<tr>
+      <td style="color:var(--text);font-weight:500">${s}</td>
+      <td class="empid">${SUP_MAP[s]}</td>
+      <td style="color:var(--text2)">${empDays}</td>
+      <td style="color:var(--green);font-weight:600">${P}</td>
+      <td style="color:var(--red)">${A}</td>
+      <td style="color:var(--purple);font-weight:700">₹${totalPaid.toLocaleString("en-IN")}</td>
+      <td>${pct}%<div class="pbar"><div class="pfill" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  });
+  if(!zone) cards+=`<div class="metric" style="--m-color:var(--purple)"><div class="ml">Grand Total Paid</div><div class="mv">₹${grand.toLocaleString("en-IN")}</div></div>`;
+  document.getElementById("site-cards").innerHTML=cards;
+  document.getElementById("site-tbody").innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No data</td></tr>';
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  const m=new Date().toISOString().slice(0,7);
+  if(!document.getElementById("report-month").value) document.getElementById("report-month").value=m;
+  if(!document.getElementById("site-month").value) document.getElementById("site-month").value=m;
+  renderDashboard();renderBulk();renderEmployees();renderPayments();renderEmpReport();renderSiteReport();
+}
+
+load();populateSelects();renderAll();
+</script>
+</body>
+</html>
