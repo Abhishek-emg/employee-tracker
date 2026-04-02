@@ -637,7 +637,7 @@ async function doLogin(){
   const ok = await fetchUsers();
   btn.disabled = false;
   btn.innerHTML = "Sign In";
-  if(!ok && usersCache.length === 0){
+  if(!ok || usersCache.length === 0){
     usersCache = [{_id:"__admin__",name:"Admin",username:"admin",password:"admin123",role:"admin"}];
     showLoginMsg("err","Could not connect to server. You may sign in offline as admin / admin123.");
   }
